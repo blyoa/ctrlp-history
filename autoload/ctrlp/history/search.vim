@@ -13,6 +13,8 @@ let s:history_search_var = {
             \ 'sname': 'history_search',
             \ 'type': 'history_search',
             \ 'sort': 0,
+            \ 'opmul': 1,
+            \ 'wipe': 'ctrlp#search#cmd#wipe',
             \}
 
 if exists('g:ctrlp_ext_vars') && !empty(g:ctrlp_ext_vars)
@@ -21,7 +23,7 @@ else
     let g:ctrlp_ext_vars = [s:history_search_var]
 endif
 
-function! ctrlp#history#search#init()
+function! s:get_candidates() abort
     redir => hist
     silent history /
     redir END
@@ -29,7 +31,11 @@ function! ctrlp#history#search#init()
     for h in split(hist,"\n")[1:]
         call add(arranged_hist,matchlist(h,'\s*\d\+\s*\(.*\)')[1])
     endfor
-    return reverse(arranged_hist)
+    return arranged_hist
+endfunction
+
+function! ctrlp#history#search#init()
+    return reverse(s:get_candidates())
 endfunc
 
 function! ctrlp#history#search#accept(mode, str)
@@ -60,6 +66,17 @@ function! ctrlp#history#search#accept(mode, str)
 endfunction
 
 function! ctrlp#history#search#exit()
+endfunction
+
+function! ctrlp#history#search#wipe(entries)
+    if empty(a:entries)
+        call histdel('search')
+    else
+        for entry in a:entries
+            call histdel('search', '\V\^'.escape(entry, '\').'\$')
+        endfor
+    endif
+    return reverse(s:get_candidates())
 endfunction
 
 let s:id = g:ctrlp_builtins + len(g:ctrlp_ext_vars)
