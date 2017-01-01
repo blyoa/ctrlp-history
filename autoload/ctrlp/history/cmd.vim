@@ -40,7 +40,6 @@ endfunc
 
 function! ctrlp#history#cmd#accept(mode, str)
     call ctrlp#exit()
-    echo a:str
     call histadd("cmd",a:str)
     exec a:str
 endfunction

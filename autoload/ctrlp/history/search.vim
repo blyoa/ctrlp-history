@@ -40,7 +40,6 @@ endfunc
 
 function! ctrlp#history#search#accept(mode, str)
     call ctrlp#exit()
-    echo a:str
     let @/ = a:str
     if a:mode == 'e'
         try
